@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapLine TazzoX - Real-Time Translation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .record-btn:active {
+            transform: translateY(0);
+        }
+
+        .record-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stop-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: none;
+        }
+
+        .stop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .status.recording {
+            background: #fff3e0;
+            color: #f57c00;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-box p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">🎤</div>
+            <h1>CapLine TazzoX</h1>
+            <p>Real-Time Speech Translation</p>
+        </div>
+
+        <div class="control-group">
+            <label for="languageSelect">🌍 Select Target Language</label>
+            <select id="languageSelect">
+                <option value="Hindi">Hindi (हिन्दी)</option>
+                <option value="Spanish">Spanish (Español)</option>
+                <option value="French">French (Français)</option>
+                <option value="German">German (Deutsch)</option>
+                <option value="Japanese">Japanese (日本語)</option>
+                <option value="Portuguese">Portuguese (Português)</option>
+                <option value="Russian">Russian (Русский)</option>
+                <option value="Arabic">Arabic (العربية)</option>
+                <option value="Turkish">Turkish (Türkçe)</option>
+                <option value="Chinese">Chinese (中文)</option>
+                <option value="Bengali">Bengali (বাংলা)</option>
+                <option value="Telugu">Telugu (తెలుగు)</option>
+                <option value="Marathi">Marathi (मराठी)</option>
+                <option value="Tamil">Tamil (தமிழ்)</option>
+                <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button id="recordBtn" class="record-btn">🎤 Start Recording</button>
+            <button id="stopBtn" class="stop-btn">⏹️ Stop Recording</button>
+        </div>
+
+        <div id="status" class="status"></div>
+        <div class="loader" id="loader"></div>
+
+        <div id="results" class="results">
+            <div class="result-box">
+                <h3>📝 You Said (English):</h3>
+                <p id="inputText"></p>
+            </div>
+
+            <div class="result-box">
+                <h3>🔄 Translation:</h3>
+                <p id="translatedText"></p>
+            </div>
+
+            <div class="audio-player">
+                <h3>🔊 Listen to Translation:</h3>
+                <audio id="audioPlayer" controls></audio>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
