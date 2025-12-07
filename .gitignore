@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 outputs/
 models/
+WINDSURF_INTEGRATION_GUIDE.md
+WINDSURF_QUICKSTART.md
